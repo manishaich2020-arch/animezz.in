@@ -3,8 +3,8 @@ import { products, categories, inventory } from "@/lib/db/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { ProductGrid } from "@/components/products/ProductGrid";
 
-export async function FeaturedProducts() {
-  const rows = await db
+async function getFeaturedProductRows() {
+  return db
     .select({
       id: products.id,
       name: products.name,
@@ -24,6 +24,16 @@ export async function FeaturedProducts() {
     .leftJoin(inventory, eq(inventory.productId, products.id))
     .where(and(eq(products.isFeatured, true), eq(products.isActive, true)))
     .limit(8);
+}
+
+export async function FeaturedProducts() {
+  let rows: Awaited<ReturnType<typeof getFeaturedProductRows>> = [];
+
+  try {
+    rows = await getFeaturedProductRows();
+  } catch (error) {
+    console.error("[home:featured-products] failed to load featured products", error);
+  }
 
   return <ProductGrid products={rows.map(r => ({ ...r, price: String(r.price), comparePrice: r.comparePrice ? String(r.comparePrice) : null }))} prioritizeFirst />;
 }

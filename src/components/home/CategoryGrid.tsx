@@ -5,10 +5,16 @@ import Image from "next/image";
 import Link from "next/link";
 
 export async function CategoryGrid() {
-  const cats = await db.query.categories.findMany({
-    where: isNull(categories.parentId),
-    limit: 6,
-  });
+  let cats: Awaited<ReturnType<typeof db.query.categories.findMany>> = [];
+
+  try {
+    cats = await db.query.categories.findMany({
+      where: isNull(categories.parentId),
+      limit: 6,
+    });
+  } catch (error) {
+    console.error("[home:categories] failed to load categories", error);
+  }
 
   return (
     <div className="grid grid-cols-3 md:grid-cols-6 gap-3">

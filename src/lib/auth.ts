@@ -17,6 +17,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   // Google OAuth account linking is handled via the register flow if needed.
   session: { strategy: "jwt" },
   secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true,
   pages: {
     signIn: "/auth/login",
     error: "/auth/error",

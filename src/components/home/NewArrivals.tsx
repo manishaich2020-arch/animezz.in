@@ -3,8 +3,8 @@ import { products, categories, inventory } from "@/lib/db/schema";
 import { eq, desc, sql } from "drizzle-orm";
 import { ProductGrid } from "@/components/products/ProductGrid";
 
-export async function NewArrivals() {
-  const rows = await db
+async function getNewArrivalRows() {
+  return db
     .select({
       id: products.id,
       name: products.name,
@@ -25,6 +25,16 @@ export async function NewArrivals() {
     .where(eq(products.isActive, true))
     .orderBy(desc(products.createdAt))
     .limit(8);
+}
+
+export async function NewArrivals() {
+  let rows: Awaited<ReturnType<typeof getNewArrivalRows>> = [];
+
+  try {
+    rows = await getNewArrivalRows();
+  } catch (error) {
+    console.error("[home:new-arrivals] failed to load new arrivals", error);
+  }
 
   return <ProductGrid products={rows.map(r => ({ ...r, price: String(r.price), comparePrice: r.comparePrice ? String(r.comparePrice) : null }))} />;
 }
