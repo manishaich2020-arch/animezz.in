@@ -26,6 +26,8 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { items, subtotal, couponCode, couponDiscount, clearCart } = useCartStore();
 
+  // Prevent hydration mismatch — Zustand persist reads from localStorage only on client
+  const [mounted, setMounted] = useState(false);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<string>("");
   const [loading, setLoading] = useState(false);
@@ -40,13 +42,18 @@ export default function CheckoutPage() {
   const total = Math.max(0, sub - discount + shipping);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     if (!session) {
       router.push("/auth/login?callbackUrl=/checkout");
       return;
     }
     fetchAddresses();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session]);
+  }, [session, mounted]);
 
   const fetchAddresses = async () => {
     try {
@@ -140,6 +147,22 @@ export default function CheckoutPage() {
       setLoading(false);
     }
   };
+
+  // Show skeleton until client hydrates (Zustand persist reads localStorage only on client)
+  if (!mounted) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <h1 className="text-3xl font-bold text-white mb-8">
+          <span className="neon-text">Checkout</span>
+        </h1>
+        <div className="space-y-4">
+          {[1, 2].map((i) => (
+            <div key={i} className="h-24 skeleton rounded-xl" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   if (items.length === 0) {
     router.push("/cart");
