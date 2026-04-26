@@ -2,26 +2,327 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   CSS VARIABLES — Dynamic theming
+   ============================================================ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --accent: #a855f7;
+  --accent-rgb: 168, 85, 247;
+  --glow: #a855f720;
+  --breath-color: #a855f740;
+  --bg: #0a0a0f;
+  --bg-card: #111118;
+  --bg-card-hover: #16161f;
+  --border: #1e1e2e;
+  --text: #e2e8f0;
+  --text-muted: #64748b;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Light theme overrides */
+html.light-theme {
+  --bg: #f8f9fa;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f3f5;
+  --border: #e2e8f0;
+  --text: #1a1a2e;
+  --text-muted: #64748b;
+}
+
+html.light-theme body {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+html.light-theme .glass {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+html.light-theme .product-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+html.light-theme .product-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px var(--glow), 0 4px 20px rgba(0,0,0,0.12);
+}
+
+html.light-theme .search-input {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #1a1a2e;
+}
+
+html.light-theme nav {
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom-color: rgba(0,0,0,0.08);
+}
+
+html.light-theme .bg-\[\#111118\] {
+  background-color: #ffffff !important;
+}
+
+html.light-theme .bg-\[\#0d0d14\] {
+  background-color: #f8f9fa !important;
+}
+
+html.light-theme .bg-\[\#0a0a0f\] {
+  background-color: #f8f9fa !important;
+}
+
+html.light-theme .text-slate-200,
+html.light-theme .text-slate-300 {
+  color: #334155;
+}
+
+html.light-theme .text-slate-400 {
+  color: #64748b;
+}
+
+html.light-theme .text-white {
+  color: #1a1a2e;
+}
+
+html.light-theme .border-white\/5,
+html.light-theme .border-white\/10 {
+  border-color: #e2e8f0;
+}
+
+html.light-theme footer {
+  background-color: #f1f3f5;
+  border-top-color: #e2e8f0;
+}
+
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  /* Establish stacking context for particle background */
+  position: relative;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+/* ============================================================
+   BREATHING GLOW ANIMATION
+   ============================================================ */
+@keyframes breathe {
+  0%, 100% {
+    box-shadow: 0 0 8px var(--breath-color);
+  }
+  50% {
+    box-shadow: 0 0 32px var(--accent), 0 0 64px var(--glow);
   }
 }
+
+@keyframes breathe-text {
+  0%, 100% {
+    text-shadow: 0 0 8px var(--breath-color);
+  }
+  50% {
+    text-shadow: 0 0 20px var(--accent), 0 0 40px var(--glow);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes particle-drift {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-100vh) translateX(50px); opacity: 0; }
+}
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
+.breathe {
+  animation: breathe 3s ease-in-out infinite;
+}
+
+.breathe-text {
+  animation: breathe-text 3s ease-in-out infinite;
+}
+
+.float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.neon-text {
+  color: var(--accent);
+  text-shadow: 0 0 10px var(--accent), 0 0 20px var(--glow);
+}
+
+/* In light mode, neon-text needs stronger contrast */
+html.light-theme .neon-text {
+  color: color-mix(in srgb, var(--accent) 85%, #000);
+  text-shadow: none;
+}
+
+.neon-border {
+  border-color: var(--accent);
+  box-shadow: 0 0 8px var(--glow), inset 0 0 8px var(--glow);
+}
+
+.glass {
+  background: rgba(17, 17, 24, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-hover:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 24px var(--glow), 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* Skeleton shimmer */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #1a1a2e 25%,
+    #16213e 50%,
+    #1a1a2e 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--accent) 80%, white);
+}
+
+/* ============================================================
+   PRODUCT CARD
+   ============================================================ */
+.product-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.product-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 0 20px var(--glow), 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 24px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 12px var(--glow);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 0 24px var(--accent), 0 0 48px var(--glow);
+}
+
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* ============================================================
+   PROGRESS BAR (cart threshold)
+   ============================================================ */
+.progress-bar-track {
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+  height: 6px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #fff));
+  border-radius: 999px;
+  transition: width 0.4s ease;
+  box-shadow: 0 0 8px var(--accent);
+}
+
+/* ============================================================
+   SEARCH INPUT
+   ============================================================ */
+.search-input {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 10px 16px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* When input has a left icon — add extra left padding */
+.search-input.has-icon-left {
+  padding-left: 2.75rem; /* 44px — icon (16px) + left offset (12px) + gap (16px) */
+}
+
+/* When input has a right icon */
+.search-input.has-icon-right {
+  padding-right: 2.75rem;
+}
+
+.search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--glow);
+}
+
+/* ============================================================
+   STAR RATING
+   ============================================================ */
+.star-filled { color: #f59e0b; }
+.star-empty  { color: #374151; }
